@@ -1,20 +1,20 @@
 const mongoose = require('mongoose');
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
     
     name:{
-        type:string,
+        type:String,
         required:true,
     },
     email:{
-        type:string,
+        type:String,
         required:true,
         unique:true
     },
     password:{
-        type:string,
+        type:Number,
         required:true,
     },
     Date:{
