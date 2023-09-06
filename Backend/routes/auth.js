@@ -17,7 +17,7 @@ router.post('/createuser',[
 ], async (req, res) => {
     
     const result = validationResult(req);
-     //to check validation given below
+     //to check validation given above
     if (result.isEmpty()) {
        
         try{
@@ -56,4 +56,57 @@ router.post('/createuser',[
     else
        res.send({ errors: result.array() });
   });
+
+
+  //Authenticate  a  user using post "/api/aut/login"  no login required
+router.post('/login',[        
+    check('password',"password cannot be blank").notEmpty(),        
+    check('email',"It should be Email Id").isEmail()         
+], async (req, res) => {
+
+    const result = validationResult(req);
+    //to check validation given above
+    if (result.isEmpty()) {
+        //desctructuring
+        const {email,password}=req.body;
+        try{
+            //if with this email someone is present or not
+            let user=await User.findOne({email});
+            if(!user){
+                // console.log(user)
+                return res.status(500).json({error:"Please try to login with correct credentials"});
+                   }
+             //comparing password with database 
+             const passwordCompare=await bcrypt.compare(password,user.password);
+             if(!passwordCompare){
+                return res.status(500).json({error:"Please try to login with correct credentials"});
+             }
+             data={
+                user:{
+                id:user.id
+                }
+            }
+            var authtoken = jwt.sign(data, JWT_SECRET);
+             res.json({authtoken});
+          }catch(error){
+            
+            console.error(error.message);
+            res.status(500).send("some error occured");
+
+        }
+     }
+    else
+    {
+        res.send({ errors: result.array() });
+    }
+
+
+
+});
+    
+
+
+
+
+
 module.exports= router 
