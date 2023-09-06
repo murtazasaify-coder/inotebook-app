@@ -1,8 +1,13 @@
 const express= require("express");
 const { query, validationResult } = require('express-validator');
 const  { check } = require('express-validator');
+const bcrypt = require('bcryptjs');
 const router=express.Router();
 const User=require('../models/User')
+var jwt = require('jsonwebtoken');
+
+const JWT_SECRET="MynameisMurtaza@"
+
 
 //Create a  user using post "/api/aut/createuser"  no login required
 router.post('/createuser',[  
@@ -25,12 +30,20 @@ router.post('/createuser',[
                         res.status(500).json({Error:"Email Exits Already"});
                 }else{
                      //user created at database
+                     var salt = await bcrypt.genSaltSync(10);
+                     var securePassword = await bcrypt.hashSync(req.body.password, salt);
                       user= await User.create({
                             name: req.body.name,
                             email:req.body.email,
-                            password: req.body.password,
+                            password: securePassword,
                         })
-                     res.send({Data:"User data added"});
+                    data={
+                        user:{
+                        id:user.id
+                        }
+                    }
+                    var authtoken = jwt.sign(data, JWT_SECRET);
+                     res.json({authtoken});
                     }
                  } catch(error)
                  {
