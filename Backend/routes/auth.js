@@ -5,11 +5,12 @@ const bcrypt = require('bcryptjs');
 const router=express.Router();
 const User=require('../models/User')
 var jwt = require('jsonwebtoken');
+var fetchuser=require("../middleware/fetchuser");
 
 const JWT_SECRET="MynameisMurtaza@"
 
 
-//Create a  user using post "/api/aut/createuser"  no login required
+// Route 1 :Create a  user using post "/api/aut/createuser"  no login required
 router.post('/createuser',[  
     check('name',"Enter valid name having atleast 3 characters").isLength({min:3})  ,       
     check('password',"password should contain atleast 3 characters").isLength({min:5}),        
@@ -58,7 +59,7 @@ router.post('/createuser',[
   });
 
 
-  //Authenticate  a  user using post "/api/aut/login"  no login required
+  //Route 2 :Authenticate  a  user using post "/api/aut/login"  no login required
 router.post('/login',[        
     check('password',"password cannot be blank").notEmpty(),        
     check('email',"It should be Email Id").isEmail()         
@@ -104,7 +105,23 @@ router.post('/login',[
 
 });
     
+// Route 3 :Get logged in User Details a  user using post "/api/aut/getuser"   login required
+router.post('/getuser',fetchuser, async (req, res) =>{
+    
+    try {
+        let userId=req.user.id;
+        const user=await User.findById(userId).select("-password");
+        res.send(user);
 
+     } catch (error) {
+            console.error(error.message);
+            res.status(500).send("some error occured");
+        
+    }
+
+
+
+} )
 
 
 
